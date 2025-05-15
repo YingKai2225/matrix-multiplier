@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân Ma Trận</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            line-height: 1.6;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            color: #333;
+        }
+        h1 {
+            color: #2c3e50;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+        .matrix-container {
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .matrix-controls {
+            margin-bottom: 10px;
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 8px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        input {
+            width: 50px;
+            padding: 5px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        table {
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        td {
+            padding: 5px;
+            border: 1px solid #ddd;
+        }
+        td input {
+            width: 40px;
+            text-align: center;
+        }
+        .result-container {
+            margin-top: 30px;
+            background-color: #e8f4fc;
+            padding: 20px;
+            border-radius: 8px;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .instructions {
+            background-color: #f0f7fd;
+            padding: 15px;
+            border-left: 4px solid #3498db;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Nhân Hai Ma Trận</h1>
+    
+    <div class="instructions">
+        <h3>Hướng dẫn sử dụng:</h3>
+        <ol>
+            <li>Nhập kích thước (số hàng và số cột) cho 2 ma trận</li>
+            <li>Nhấn "Tạo Ma Trận" để tạo bảng nhập liệu</li>
+            <li>Nhập các giá trị vào ma trận</li>
+            <li>Nhấn "Tính Toán" để xem kết quả</li>
+        </ol>
+        <p><strong>Lưu ý:</strong> Số cột của Ma trận A phải bằng số hàng của Ma trận B</p>
+    </div>
+
+    <div class="container">
+        <div class="matrix-container">
+            <h2>Ma trận A</h2>
+            <div class="matrix-controls">
+                <span>Hàng: <input type="number" id="rowsA" min="1" value="2"></span>
+                <span>Cột: <input type="number" id="colsA" min="1" value="3"></span>
+                <button onclick="createMatrix('A')">Tạo Ma Trận</button>
+            </div>
+            <div id="matrixA"></div>
+        </div>
+
+        <div class="matrix-container">
+            <h2>Ma trận B</h2>
+            <div class="matrix-controls">
+                <span>Hàng: <input type="number" id="rowsB" min="1" value="3"></span>
+                <span>Cột: <input type="number" id="colsB" min="1" value="2"></span>
+                <button onclick="createMatrix('B')">Tạo Ma Trận</button>
+            </div>
+            <div id="matrixB"></div>
+        </div>
+    </div>
+
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="calculate()" style="padding: 10px 20px; font-size: 16px;">Tính Toán</button>
+    </div>
+
+    <div class="result-container">
+        <h2>Kết quả: A × B</h2>
+        <div id="result"></div>
+        <div id="error" class="error"></div>
+    </div>
+
+    <script>
+        // Tạo ma trận nhập liệu
+        function createMatrix(matrixId) {
+            const rows = parseInt(document.getElementById(`rows${matrixId}`).value);
+            const cols = parseInt(document.getElementById(`cols${matrixId}`).value);
+            
+            let tableHTML = '<table>';
+            for (let i = 0; i < rows; i++) {
+                tableHTML += '<tr>';
+                for (let j = 0; j < cols; j++) {
+                    tableHTML += `<td><input type="number" id="${matrixId}${i}${j}" value="0"></td>`;
+                }
+                tableHTML += '</tr>';
+            }
+            tableHTML += '</table>';
+            
+            document.getElementById(`matrix${matrixId}`).innerHTML = tableHTML;
+        }
+
+        // Hàm nhân ma trận
+        function multiplyMatrices(a, b) {
+            const aRows = a.length;
+            const aCols = a[0].length;
+            const bRows = b.length;
+            const bCols = b[0].length;
+            
+            if (aCols !== bRows) {
+                throw new Error('Số cột của Ma trận A phải bằng số hàng của Ma trận B');
+            }
+            
+            const result = new Array(aRows);
+            for (let i = 0; i < aRows; i++) {
+                result[i] = new Array(bCols).fill(0);
+            }
+            
+            for (let i = 0; i < aRows; i++) {
+                for (let j = 0; j < bCols; j++) {
+                    for (let k = 0; k < aCols; k++) {
+                        result[i][j] += a[i][k] * b[k][j];
+                    }
+                }
+            }
+            
+            return result;
+        }
+
+        // Lấy giá trị từ ma trận nhập liệu
+        function getMatrixValues(matrixId, rows, cols) {
+            const matrix = [];
+            for (let i = 0; i < rows; i++) {
+                matrix[i] = [];
+                for (let j = 0; j < cols; j++) {
+                    const value = parseFloat(document.getElementById(`${matrixId}${i}${j}`).value);
+                    matrix[i][j] = isNaN(value) ? 0 : value;
+                }
+            }
+            return matrix;
+        }
+
+        // Tính toán và hiển thị kết quả
+        function calculate() {
+            document.getElementById('error').textContent = '';
+            document.getElementById('result').innerHTML = '';
+            
+            const rowsA = parseInt(document.getElementById('rowsA').value);
+            const colsA = parseInt(document.getElementById('colsA').value);
+            const rowsB = parseInt(document.getElementById('rowsB').value);
+            const colsB = parseInt(document.getElementById('colsB').value);
+            
+            try {
+                const matrixA = getMatrixValues('A', rowsA, colsA);
+                const matrixB = getMatrixValues('B', rowsB, colsB);
+                
+                const result = multiplyMatrices(matrixA, matrixB);
+                
+                // Hiển thị kết quả
+                let resultHTML = '<table>';
+                for (let i = 0; i < result.length; i++) {
+                    resultHTML += '<tr>';
+                    for (let j = 0; j < result[0].length; j++) {
+                        resultHTML += `<td>${result[i][j].toFixed(2)}</td>`;
+                    }
+                    resultHTML += '</tr>';
+                }
+                resultHTML += '</table>';
+                
+                document.getElementById('result').innerHTML = resultHTML;
+            } catch (error) {
+                document.getElementById('error').textContent = error.message;
+            }
+        }
+
+        // Tạo ma trận mặc định khi trang được tải
+        window.onload = function() {
+            createMatrix('A');
+            createMatrix('B');
+        };
+    </script>
+</body>
+</html>
